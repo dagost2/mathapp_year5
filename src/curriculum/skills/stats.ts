@@ -31,6 +31,12 @@ const readingData: Skill = {
     const set = rng.pick(CATEGORY_SETS)
     const scale = level === 1 ? 1 : rng.pick([2, 5])
     const data = set.labels.map(label => ({ label, value: rng.int(1, 10) * scale }))
+    // A tied top bar would make "which has the MOST?" have two right answers,
+    // only one of which is accepted. Push one leader clear of the pack, keeping
+    // it a whole number of scale units so it still lands on a gridline.
+    const highest = Math.max(...data.map(d => d.value))
+    const leaders = data.filter(d => d.value === highest)
+    if (leaders.length > 1) rng.pick(leaders).value += scale
     const sorted = [...data].sort((a, b) => b.value - a.value)
     const mode = rng.pick(level === 1 ? (['most'] as const) : (['most', 'difference', 'total'] as const))
 

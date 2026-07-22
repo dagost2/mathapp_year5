@@ -49,8 +49,13 @@ export function QuestionCard({ question, onNext, testMode = false, index, total 
 
   const usedHelp = hintsShown > 0 || showWorked || attempts > 1
 
+  // Answering is over once she is right, or once the second miss has revealed
+  // the answer. Without this she could read the revealed answer, enter it, and
+  // have it recorded as correct.
+  const locked = !testMode && (result === 'right' || attempts >= 2)
+
   const submit = (value: string) => {
-    if (result === 'right') return
+    if (locked) return
     // In a mock test we only record the answer — no marking, no second go.
     if (testMode) {
       setPicked(value)
@@ -65,7 +70,7 @@ export function QuestionCard({ question, onNext, testMode = false, index, total 
   }
 
   const handleChoice = (choice: string) => {
-    if (!testMode && result === 'right') return
+    if (locked) return
     setPicked(choice)
     submit(choice)
   }
@@ -107,13 +112,14 @@ export function QuestionCard({ question, onNext, testMode = false, index, total 
           <div className="grid grid-cols-2 gap-3 mt-4">
             {question.choices?.map(c => {
               const isPicked = picked === c
-              const reveal = result !== null && !testMode
-              const correctOne = reveal && isCorrect(c, question.answer)
+              // Only show which one was right once she can no longer answer —
+              // revealing it after a single miss makes the retry a freebie.
+              const correctOne = locked && isCorrect(c, question.answer)
               return (
                 <button
                   key={c}
                   onClick={() => handleChoice(c)}
-                  disabled={result === 'right'}
+                  disabled={locked}
                   className={[
                     'btn py-4 px-3 text-lg font-bold border-2',
                     correctOne
@@ -150,7 +156,7 @@ export function QuestionCard({ question, onNext, testMode = false, index, total 
                 <span className="text-xl font-semibold text-slate-400">{question.unit}</span>
               )}
             </div>
-            <Keypad value={entry} onChange={setEntry} onSubmit={() => submit(entry)} disabled={result === 'right'} />
+            <Keypad value={entry} onChange={setEntry} onSubmit={() => submit(entry)} disabled={locked} />
           </div>
         )}
       </div>
@@ -183,7 +189,7 @@ export function QuestionCard({ question, onNext, testMode = false, index, total 
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setHintsShown(h => Math.min(question.hints.length, h + 1))}
-              disabled={hintsShown >= question.hints.length || result === 'right'}
+              disabled={hintsShown >= question.hints.length || locked}
               className="btn-ghost"
             >
               💡 {hintsShown === 0 ? 'Give me a hint' : 'Another hint'}

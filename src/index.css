@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-ink text-slate-100 antialiased;
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    /* Stops iOS rubber-banding the whole page while scrolling a panel. */
+    overscroll-behavior-y: none;
+  }
+
+  /* Safe area for iPad/iPhone home indicator when installed to the home screen. */
+  #root {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-slate2 rounded-2xl border border-slate-700/60 shadow-lg;
+  }
+
+  .btn {
+    @apply rounded-xl font-semibold transition active:scale-95 disabled:opacity-40 disabled:active:scale-100;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand text-white px-5 py-3 hover:bg-violet-500;
+  }
+
+  .btn-ghost {
+    @apply btn bg-slate-700/60 text-slate-100 px-4 py-2.5 hover:bg-slate-600/60;
+  }
+}
+
+/* Big tap targets everywhere — this is used on a tablet by a 10-year-old. */
+button {
+  touch-action: manipulation;
+}
